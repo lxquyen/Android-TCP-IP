@@ -1,0 +1,51 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
+
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+ext.VERSION_RX_JAVA = "2.0.6"
+ext.VERSION_RX_ANDROID = "2.0.1"
+ext.VERSION_GSON = "2.8.0"
+ext.VERSION_OK_HTTP = "3.7.0"
+ext.VERSION_RETROFIT = "2.2.0"
+ext.VERSION_GLIDE = "4.2.0"
+ext.VERSION_EVENT_BUS = "3.0.0"
+dependencies {
+    //rx java-android
+    compile "io.reactivex.rxjava2:rxjava:$VERSION_RX_JAVA"
+    compile "io.reactivex.rxjava2:rxandroid:$VERSION_RX_ANDROID"
+    // Gson
+    compile "com.google.code.gson:gson:$VERSION_GSON"
+    // OkHttp
+    compile "com.squareup.okhttp3:okhttp:$VERSION_OK_HTTP"
+    compile "com.squareup.okhttp3:logging-interceptor:$VERSION_OK_HTTP"
+    // Retrofit
+    compile "com.squareup.retrofit2:retrofit:$VERSION_RETROFIT"
+    compile "com.squareup.retrofit2:converter-gson:$VERSION_RETROFIT"
+    compile "com.squareup.retrofit2:adapter-rxjava2:$VERSION_RETROFIT"
+    //Glide
+    compile "com.github.bumptech.glide:glide:$VERSION_GLIDE"
+    annotationProcessor "com.github.bumptech.glide:compiler:$VERSION_GLIDE"
+    //Event Bus
+    compile "org.greenrobot:eventbus:$VERSION_EVENT_BUS"
+}
