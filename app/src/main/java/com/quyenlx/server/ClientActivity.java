@@ -2,17 +2,22 @@ package com.quyenlx.server;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class ClientActivity extends AppCompatActivity implements View.OnClickListener, ClientAna.MessageCallback {
     private EditText editIp, editPort;
-    private TextView tvMessage;
-    private Button button;
-    private boolean isConnected;
+    private Button btnConnect;
     private ClientAna ana;
+
+    private EditText editMessage;
+    private Button btnSend;
+    private ArrayAdapter<String> arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,24 +25,37 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_client);
         editIp = findViewById(R.id.edit_ip);
         editPort = findViewById(R.id.edit_port);
-        tvMessage = findViewById(R.id.tv_message);
-        button = findViewById(R.id.btn_connect);
-        button.setOnClickListener(this);
+        btnConnect = findViewById(R.id.btn_connect);
+        btnConnect.setOnClickListener(this);
+
+        ListView listView = findViewById(R.id.list_view);
+        editMessage = findViewById(R.id.edit_message);
+        btnSend = findViewById(R.id.btn_send);
+        btnSend.setOnClickListener(this);
+
+        arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
+        listView.setAdapter(arrayAdapter);
     }
 
     @Override
     public void onClick(View view) {
-        if (isConnected) {
-            sendMessage();
-        } else {
+        if (view == btnConnect) {
             initClient();
+        } else if (view == btnSend) {
+            sendMessage();
         }
 
     }
 
     private void sendMessage() {
-        String message = editIp.getText().toString();
-        ana.send(message);
+        String message = editMessage.getText().toString();
+        if (!TextUtils.isEmpty(message)) {
+            ana.send(message);
+            editMessage.setText("");
+            arrayAdapter.add("Client : " + message);
+        }
+
+
     }
 
     private void initClient() {
@@ -49,17 +67,13 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void connected() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                isConnected = true;
-                button.setText("Send");
-            }
+        runOnUiThread(() -> {
+            btnConnect.setText("Connected");
         });
     }
 
     @Override
     public void receiver(String message) {
-        tvMessage.append(message);
+        arrayAdapter.add("Server : " + message);
     }
 }
