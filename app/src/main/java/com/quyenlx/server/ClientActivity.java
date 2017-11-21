@@ -36,6 +36,8 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.btn_repeat).setOnClickListener(this);
         findViewById(R.id.btn_up).setOnClickListener(this);
         findViewById(R.id.btn_down).setOnClickListener(this);
+        findViewById(R.id.btn_play).setOnClickListener(this);
+        findViewById(R.id.btn_add).setOnClickListener(this);
 
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(arrayAdapter);
@@ -71,8 +73,24 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.btn_down:
                 requestDown();
                 break;
+            case R.id.btn_play:
+                requestPlay();
+                break;
+            case R.id.btn_add:
+                requestAdd();
+                break;
         }
 
+    }
+
+    private void requestAdd() {
+        String text = "{\"type\":\"add\",\"value\":8119}";
+        updateAdapter(text);
+    }
+
+    private void requestPlay() {
+        String text = "{\"type\":\"play\",\"value\":8119}";
+        updateAdapter(text);
     }
 
     private void requestDown() {
