@@ -31,6 +31,12 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.btn_view).setOnClickListener(this);
         findViewById(R.id.btn_play_list).setOnClickListener(this);
 
+        findViewById(R.id.btn_play_pause).setOnClickListener(this);
+        findViewById(R.id.btn_next).setOnClickListener(this);
+        findViewById(R.id.btn_repeat).setOnClickListener(this);
+        findViewById(R.id.btn_up).setOnClickListener(this);
+        findViewById(R.id.btn_down).setOnClickListener(this);
+
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(arrayAdapter);
     }
@@ -50,8 +56,48 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.btn_view:
                 requestView(!flag);
                 break;
+            case R.id.btn_play_pause:
+                requestPlayPause();
+                break;
+            case R.id.btn_next:
+                requestNext();
+                break;
+            case R.id.btn_repeat:
+                requestRepeat();
+                break;
+            case R.id.btn_up:
+                requestUp();
+                break;
+            case R.id.btn_down:
+                requestDown();
+                break;
         }
 
+    }
+
+    private void requestDown() {
+        String text = "{\"type\":\"action\",\"value\":5}";
+        updateAdapter(text);
+    }
+
+    private void requestUp() {
+        String text = "{\"type\":\"action\",\"value\":4}";
+        updateAdapter(text);
+    }
+
+    private void requestRepeat() {
+        String text = "{\"type\":\"action\",\"value\":3}";
+        updateAdapter(text);
+    }
+
+    private void requestNext() {
+        String text = "{\"type\":\"action\",\"value\":2}";
+        updateAdapter(text);
+    }
+
+    private void requestPlayPause() {
+        String text = "{\"type\":\"action\",\"value\":1}";
+        updateAdapter(text);
     }
 
     private void requestView(boolean flag) {
@@ -62,20 +108,22 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         } else {
             text = "{\"type\":\"view\",\"value\":0}";
         }
-        ana.send(text);
-        arrayAdapter.add("--------->Client : \n" + text);
+        updateAdapter(text);
     }
 
     private void requestSong() {
         String text = "{\"type\":\"song\",\"value\":1}";
-        ana.send(text);
-        arrayAdapter.add("Client : " + text);
+        updateAdapter(text);
     }
 
     private void requestPlayList() {
         String text = "{\"type\":\"play-list\",\"value\":1}";
+        updateAdapter(text);
+    }
+
+    private void updateAdapter(String text) {
         ana.send(text);
-        arrayAdapter.add("Client : " + text);
+        arrayAdapter.add("--------->Client : \n" + text);
     }
 
 
@@ -88,7 +136,10 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void connected() {
-        runOnUiThread(() -> btnConnect.setText("Connected"));
+        runOnUiThread(() -> {
+            btnConnect.setText("Connected");
+            btnConnect.setClickable(false);
+        });
     }
 
     @Override
