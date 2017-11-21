@@ -14,10 +14,8 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     private EditText editIp, editPort;
     private Button btnConnect;
     private ClientAna ana;
-
-    private EditText editMessage;
-    private Button btnSend;
     private ArrayAdapter<String> arrayAdapter;
+    boolean flag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +27,8 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         btnConnect.setOnClickListener(this);
 
         ListView listView = findViewById(R.id.list_view);
-        editMessage = findViewById(R.id.edit_message);
-        btnSend = findViewById(R.id.btn_send);
-        btnSend.setOnClickListener(this);
+        findViewById(R.id.btn_song).setOnClickListener(this);
+        findViewById(R.id.btn_view).setOnClickListener(this);
 
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(arrayAdapter);
@@ -39,23 +36,36 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        if (view == btnConnect) {
-            initClient();
-        } else if (view == btnSend) {
-            sendMessage();
+        switch (view.getId()) {
+            case R.id.btn_connect:
+                initClient();
+                break;
+            case R.id.btn_song:
+                requestSong();
+                break;
+            case R.id.btn_view:
+                requestView(!flag);
+                break;
         }
 
     }
 
-    private void sendMessage() {
-        String message = editMessage.getText().toString();
-        if (!TextUtils.isEmpty(message)) {
-            ana.send(message);
-            editMessage.setText("");
-            arrayAdapter.add("Client : " + message);
+    private void requestView(boolean flag) {
+        this.flag = flag;
+        String text;
+        if (flag) {
+            text = "{\"type\":\"view\",\"value\":1}";
+        } else {
+            text = "{\"type\":\"view\",\"value\":0}";
         }
+        ana.send(text);
+        arrayAdapter.add("--------->Client : \n" + text);
+    }
 
-
+    private void requestSong() {
+        String text = "{\"type\":\"song\",\"value\":1}";
+        ana.send(text);
+        arrayAdapter.add("Client : " + text);
     }
 
     private void initClient() {
@@ -67,13 +77,11 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void connected() {
-        runOnUiThread(() -> {
-            btnConnect.setText("Connected");
-        });
+        runOnUiThread(() -> btnConnect.setText("Connected"));
     }
 
     @Override
     public void receiver(String message) {
-        arrayAdapter.add("Server : " + message);
+        arrayAdapter.add("--------->Server : \n" + message);
     }
 }
