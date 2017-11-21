@@ -34,27 +34,38 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <LinearLayout
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/btn_connect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Connect" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_song"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="song" />
+            <Button
+                android:id="@+id/btn_connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connect" />
 
-        <Button
-            android:id="@+id/btn_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_song"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="song" />
+
+            <Button
+                android:id="@+id/btn_play_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="play-list" />
+
+            <Button
+                android:id="@+id/btn_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View" />
+        </LinearLayout>
+    </HorizontalScrollView>
 </LinearLayout>

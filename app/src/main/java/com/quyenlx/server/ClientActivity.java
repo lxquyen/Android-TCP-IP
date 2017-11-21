@@ -29,6 +29,7 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         ListView listView = findViewById(R.id.list_view);
         findViewById(R.id.btn_song).setOnClickListener(this);
         findViewById(R.id.btn_view).setOnClickListener(this);
+        findViewById(R.id.btn_play_list).setOnClickListener(this);
 
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(arrayAdapter);
@@ -42,6 +43,9 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.btn_song:
                 requestSong();
+                break;
+            case R.id.btn_play_list:
+                requestPlayList();
                 break;
             case R.id.btn_view:
                 requestView(!flag);
@@ -67,6 +71,13 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         ana.send(text);
         arrayAdapter.add("Client : " + text);
     }
+
+    private void requestPlayList() {
+        String text = "{\"type\":\"play-list\",\"value\":1}";
+        ana.send(text);
+        arrayAdapter.add("Client : " + text);
+    }
+
 
     private void initClient() {
         String ip = editIp.getText().toString();
