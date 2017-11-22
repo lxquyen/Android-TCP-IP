@@ -21,25 +21,19 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ClientAna extends AsyncTask<Void, String, Void> {
     private static final String TAG = ClientAna.class.getSimpleName();
-    private final String ip;
-    private final int port;
-
     private Socket client;
     private InputStream is;
     private PrintStream os;
     private final MessageCallback callback;
 
-    ClientAna(String ip, int port, MessageCallback callback) {
-        this.ip = ip;
-        this.port = port;
+    ClientAna(Socket client,MessageCallback callback) {
+        this.client = client;
         this.callback = callback;
     }
 
     @Override
     protected Void doInBackground(Void... voids) {
         try {
-            client = new Socket(ip, port);
-            client.setSoTimeout(100);
             os = new PrintStream(client.getOutputStream());
             is = client.getInputStream();
             if (client.isConnected()) {
@@ -81,13 +75,10 @@ public class ClientAna extends AsyncTask<Void, String, Void> {
 
     public void send(final String message) {
         Observable
-                .create(new ObservableOnSubscribe<Boolean>() {
-                    @Override
-                    public void subscribe(ObservableEmitter<Boolean> e) throws Exception {
-                        os.println(message);
-                        e.onNext(true);
-                        e.onComplete();
-                    }
+                .create((ObservableOnSubscribe<Boolean>) e -> {
+                    os.println(message);
+                    e.onNext(true);
+                    e.onComplete();
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

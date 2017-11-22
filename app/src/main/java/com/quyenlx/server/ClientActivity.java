@@ -197,11 +197,11 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     e.onComplete();
                 })
-                .concatMap(integer -> {
+                .flatMap(integer -> {
                     try {
                         Socket socket = new Socket();
                         socket.connect(new InetSocketAddress(desc + integer, 54555), 100);
-                        return Observable.just(desc + integer);
+                        return Observable.just(socket);
                     } catch (Exception ex) {
                         Timber.e("#error %s", integer);
                         return Observable.just(false);
@@ -211,9 +211,9 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(s -> {
-                    if (s instanceof String) {
+                    if (s instanceof Socket) {
                         arrayAdapter.add("Connected : " + s);
-                        ana = new ClientAna(String.valueOf(s), 54555, this);
+                        ana = new ClientAna((Socket) s, this);
                         ana.execute();
                         disposable.dispose();
                         progressDialog.dismiss();
