@@ -1,5 +1,6 @@
 package com.quyenlx.server;
 
+import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,19 +11,33 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.quyenlx.core.util.DeviceUtils;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
+
 public class ClientActivity extends AppCompatActivity implements View.OnClickListener, ClientAna.MessageCallback {
-    private EditText editIp, editPort;
     private Button btnConnect;
     private ClientAna ana;
     private ArrayAdapter<String> arrayAdapter;
     boolean flag = false;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client);
-        editIp = findViewById(R.id.edit_ip);
-        editPort = findViewById(R.id.edit_port);
         btnConnect = findViewById(R.id.btn_connect);
         btnConnect.setOnClickListener(this);
 
@@ -41,6 +56,9 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(arrayAdapter);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Connecting...");
     }
 
     @Override
@@ -146,10 +164,8 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
 
     private void initClient() {
-        String ip = editIp.getText().toString();
-        Integer port = Integer.parseInt(editPort.getText().toString());
-        ana = new ClientAna(ip, port, this);
-        ana.execute();
+        start = 2;
+        autoConnect();
     }
 
     @Override
@@ -164,4 +180,48 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     public void receiver(String message) {
         arrayAdapter.add("--------->Server : \n" + message);
     }
+
+    private int start = 2;
+    private CompositeDisposable disposable = new CompositeDisposable();
+
+    private void autoConnect() {
+        progressDialog.show();
+        String ip = DeviceUtils.getIpAddress();
+        String desc = ip.substring(0, ip.lastIndexOf(".") + 1);
+        arrayAdapter.add("Start auto connect...");
+        disposable.add(Observable
+                .create((ObservableOnSubscribe<Integer>) e -> {
+                    while (start <= 255) {
+                        e.onNext(start);
+                        start++;
+                    }
+                    e.onComplete();
+                })
+                .concatMap(integer -> {
+                    try {
+                        Socket socket = new Socket();
+                        socket.connect(new InetSocketAddress(desc + integer, 54555), 100);
+                        return Observable.just(desc + integer);
+                    } catch (Exception ex) {
+                        Timber.e("#error %s", integer);
+                        return Observable.just(false);
+                    }
+
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> {
+                    if (s instanceof String) {
+                        arrayAdapter.add("Connected : " + s);
+                        ana = new ClientAna(String.valueOf(s), 54555, this);
+                        ana.execute();
+                        disposable.dispose();
+                        progressDialog.dismiss();
+                    }
+                }, throwable -> updateAdapter(throwable.getMessage()), () -> {
+                    arrayAdapter.add("No port is open");
+                    progressDialog.dismiss();
+                }));
+    }
+
 }

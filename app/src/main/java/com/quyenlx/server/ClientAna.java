@@ -39,6 +39,7 @@ public class ClientAna extends AsyncTask<Void, String, Void> {
     protected Void doInBackground(Void... voids) {
         try {
             client = new Socket(ip, port);
+            client.setSoTimeout(100);
             os = new PrintStream(client.getOutputStream());
             is = client.getInputStream();
             if (client.isConnected()) {
